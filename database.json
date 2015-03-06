@@ -1,0 +1,7 @@
+{
+  "development": {
+      "driver": "postgres",
+      "user": "root",
+      "database": "cheers_local"
+  }
+}
