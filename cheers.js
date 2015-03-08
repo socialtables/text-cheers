@@ -3,6 +3,8 @@ var parseEmailData = require("./parseEmailData");
 var cheerio = require("cheerio");
 var getURI = "https://www.tinypulse.com/user_portal/cheers/new?response_token=";
 var postURI = "https://www.tinypulse.com/user_portal/cheers?response_token=";
+var when = require("when");
+
 
 var autoCompleteEmail = function(email, emailData) {
 	var completedEmail;
@@ -54,28 +56,40 @@ var getEmailData = function(body) {
 
 module.exports = Cheers = {
 	sendCheers: function(opts) {
-		request(getURI + opts.token, function(err, res, body){
-			if(err) {
-				console.error(err);
-			}
-			else {
-				var cheerioBody = cheerio.load(body);
-				var emailData = getEmailData(cheerioBody);
-				var email = autoCompleteEmail(opts.email, emailData);
-
-				var form = getFormFields(cheerioBody);
-				form["respond[cheers][][receiver_email]"] = email;
-				form["respond[cheers][][anonymous]"] = opts.isAnonymous;
-				form["respond[cheers][][praise]"] = opts.message;
-
-				request.post({url: postURI + opts.token, form: form}, function (err, res, body) {
-					console.log(err, body);
-					if(body.indexOf(opts.token) !== -1) {
-						console.log("Success!");
+		 var cheer = when.promise(function(resolve, reject, notify) { 
+			request(getURI + opts.token, function(err, res, body){
+				if(err) {
+					console.error(err);
+				}
+				else {
+					var cheerioBody = cheerio.load(body);
+					if(cheerioBody.html().indexOf("Whoops") > -1){
+						resolve(false);
+						return false;
 					}
-				});
-			}
+					var emailData = getEmailData(cheerioBody);
+					var email = autoCompleteEmail(opts.email, emailData);
+
+					var form = getFormFields(cheerioBody);
+					form["respond[cheers][][receiver_email]"] = email;
+					form["respond[cheers][][anonymous]"] = opts.isAnonymous;
+					form["respond[cheers][][praise]"] = opts.message;
+
+					request.post({url: postURI + opts.token, form: form}, function (err, res, body) {
+						console.log(err, body);
+						if(body.indexOf(opts.token) !== -1) {
+							resolve(true);
+							return true;
+						}
+						else{
+							resolve(false);
+							return false;
+						}
+					});
+				}
+			});
 		});
+		return cheer;
 	}
 }
 

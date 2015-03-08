@@ -34,23 +34,28 @@ app.get("/", function*() {
 });
 
 app.post("/token/new", function* () {
-	var existingToken = new Token;
-	token = yield existingToken.findByPhoneNumber(this.request.body.number);
-	
-	if(!token){
-	    var newToken = new Token({
-	      phone: this.request.body.number,
-	      token: this.request.body.token
-	    });
-	    newToken = yield newToken.save();
+	if(this.request.body.token && this.request.body.number) {
+		var existingToken = new Token;
+		token = yield existingToken.findByPhoneNumber(this.request.body.number);
+		
+		if(!token){
+		    var newToken = new Token({
+		      phone: this.request.body.number,
+		      token: this.request.body.token
+		    });
+		    newToken = yield newToken.save();
 
-	    this.body = newToken;
+		    this.body = newToken;
+		}
+		else{
+			var updateToken = yield new Token({id: token.attributes.id})
+	 			.save({token: this.request.body.token}, {patch: true});
+
+	 		this.body = updateToken;
+		}
 	}
 	else{
-		var updateToken = yield new Token({id: token.attributes.id})
- 			.save({token: this.request.body.token}, {patch: true});
-
- 		this.body = updateToken;
+		this.body="you did not enter a token or phone number";
 	}
 
 })
@@ -62,18 +67,26 @@ app.post("/send", function* (next) {
 	var cheer = this.request.body.Body.split(" ");
 	var email = cheer[1].toLowerCase().trim();
 	var message = cheer.slice(2).join(" ");
-	console.log(token);
-	console.log(token.attributes.token);
 	var isAnonymous = cheer[cheer.length - 1] === "anon" ? 1 : 0;
-	cheers.sendCheers({
+	if(isAnonymous){
+		message = message.split(" ");
+		message[message.length - 1] = "";
+		message = message.join(" ");
+	}
+	var cheer = yield cheers.sendCheers({
 		token: token.attributes.token,
 		email: email,
 		message: message,
 		isAnonymous: isAnonymous
 	});
-
 	this.set('Content-Type', 'text/xml');
-	this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
+	if(cheer) {
+		this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
+	}
+	else {
+		this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on https://cheers.rocks</Sms></Response>"; 
+	}
+	
 
 })
 

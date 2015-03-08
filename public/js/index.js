@@ -25698,22 +25698,7 @@ var App = React.createClass({displayName: "App",
       	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
 
         React.createElement(RaisedButton, {label: "Add Your Token!", secondary: true, onClick: this.addToken})
-      	), 
-        React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
-           React.createElement("h1", null, "How To Use"), 
-          React.createElement("ol", null, 
-            React.createElement("li", null, " Click on your latest TinyPulse response button in your gmail account ", React.createElement("img", {src: "./respondnow.png"})), 
-            React.createElement("li", null, "When on TinyPulse, look in the url bar and copy your token, found like this: ", React.createElement("img", {src: "./url-screen.png"})), 
-            React.createElement("li", null, "Enter your phone number(no spaces, dashes, etc.. - 2222222222) and paste this token above"), 
-            React.createElement("li", null, "Now you can send a cheers by texting (516)2210-4262 in the following manner, Start the text with the word cheers," + ' ' +
-            "followed by the beginning of the persons ST email adress (conor for conor@socialtables, danmac for danmac@socialtables.com etc...)"
-            ), 
-            React.createElement("li", null, "Next simply follow that up with the content of your cheers message"), 
-            React.createElement("li", null, "If you wish to make your cheers anonymous, you can make the final word of the text message \"anon\""), 
-            React.createElement("li", null, "That's it")
-          )
-
-        )
+      	)
     	)
 
     );
