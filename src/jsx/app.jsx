@@ -2,9 +2,11 @@ var React = require("react");
 var mui = require('material-ui');
 var RaisedButton = mui.RaisedButton;
 var TextField = mui.TextField;
-var Paper = mui.Paper;
+var Dialog = mui.Dialog;
 var App = React.createClass({
-
+  getInitialState: function() {
+    return {dialogMessage:""};
+  },
   addToken: function() {
   	var number = this.refs.phone.getValue();
   	var token = this.refs.token.getValue();
@@ -13,20 +15,34 @@ var App = React.createClass({
   	var url = "/token/new"
   	xhr.open("POST", url, true);
   	xhr.onload = function () {
+
       self.refs.phone.clearValue();
       self.refs.token.clearValue();
+      self.setState({
+        dialogMessage:JSON.parse(xhr.response).message})
   	};
+    self.refs.messageDialog.show();
   	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
   	xhr.send("number=" + number + "&token=" + token);
   },
 
+  onDismiss: function() {
+    this.refs.messageDialog.dismiss();
+  },
+
   render: function() {
+    var standardActions = [
+        { text: 'Ok!' , onClick: this.onDismiss }
+    ];
+
+    var dialog = <Dialog ref="messageDialog" title="Cheers for Peers!" actions={standardActions}>{this.state.dialogMessage} </Dialog>
+  
     var style = {textAlign:"center"};
     var listStyle={textAlign: "left"};
     return (
     	<div style={style}>
-
+        {dialog}
         <div className="col-md-6 col-md-offset-3 centered">
           <h1>ST Cheers For Peers</h1>
         </div>

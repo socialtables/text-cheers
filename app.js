@@ -7,6 +7,7 @@ var router = require("koa-router");
 var twilio = require("twilio");
 var cheers = require("./cheers");
 var Token = require("./models/token");
+var verifyToken = require("./token");
 
 app.bookshelf = require("./models/index");
 app.use(bodyParser());
@@ -44,18 +45,28 @@ app.post("/token/new", function* () {
 		      token: this.request.body.token
 		    });
 		    newToken = yield newToken.save();
-
-		    this.body = newToken;
+		    var verify = yield verifyToken.verify(newToken.attributes.token);
+		    if(verify){
+		    	this.body={verified:true , message:"Thank you for adding your token!"};
+		    }
+		    else{
+		    	this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token"};
+		    }
 		}
 		else{
 			var updateToken = yield new Token({id: token.attributes.id})
 	 			.save({token: this.request.body.token}, {patch: true});
-
-	 		this.body = updateToken;
+	 		var verify = yield verifyToken.verify(updateToken.attributes.token);
+		    if(verify){
+		    	this.body={verified:true , message:"Thank you for adding your token!"};
+		    }
+		    else{
+		    	this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token"};
+		    }
 		}
 	}
 	else{
-		this.body="you did not enter a token or phone number";
+		this.body={verified:false , message:"You did not enter a token or phone number, please try again"};
 	}
 
 })
@@ -84,7 +95,7 @@ app.post("/send", function* (next) {
 		this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
 	}
 	else {
-		this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on https://cheers.rocks</Sms></Response>"; 
+		this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on www.cheers.rocks</Sms></Response>"; 
 	}
 	
 

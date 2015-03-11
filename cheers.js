@@ -60,6 +60,8 @@ module.exports = Cheers = {
 			request(getURI + opts.token, function(err, res, body){
 				if(err) {
 					console.error(err);
+					resolve(false);
+					return false;
 				}
 				else {
 					var cheerioBody = cheerio.load(body);
