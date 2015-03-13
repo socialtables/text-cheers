@@ -35,15 +35,33 @@ app.get("/", function*() {
 });
 
 app.post("/token/new", function* () {
-	if(this.request.body.token && this.request.body.number) {
+	if(this.request.body.token && (this.request.body.number || this.request.body.email)) {
 		var existingToken = new Token;
-		token = yield existingToken.findByPhoneNumber(this.request.body.number);
-		
+		var email = this.request.body.email;
+		var number = this.request.body.number;
+		var token = yield existingToken.findByPhoneNumberOrEmail(number, email);
+
 		if(!token){
-		    var newToken = new Token({
-		      phone: this.request.body.number,
-		      token: this.request.body.token
-		    });
+	
+			if(!email) {
+			    var newToken = new Token({
+			      phone: number,
+			      token: this.request.body.token
+			    });
+			}
+			else if(!number) {
+			    var newToken = new Token({
+			      email: email,
+			      token: this.request.body.token
+			    });				
+			}
+			else{
+			    var newToken = new Token({
+			      number: number,	
+			      email: email,
+			      token: this.request.body.token
+			    });				
+			}
 		    newToken = yield newToken.save();
 		    var verify = yield verifyToken.verify(newToken.attributes.token);
 		    if(verify){
@@ -54,8 +72,18 @@ app.post("/token/new", function* () {
 		    }
 		}
 		else{
-			var updateToken = yield new Token({id: token.attributes.id})
-	 			.save({token: this.request.body.token}, {patch: true});
+			if(!email){
+				var updateToken = yield new Token({id: token.attributes.id})
+		 			.save({token: this.request.body.token, phone:number}, {patch: true});
+	 		}
+	 		else if(!number) {
+	 		var updateToken = yield new Token({id: token.attributes.id})
+		 		.save({token: this.request.body.token, email:email}, {patch: true});	
+	 		}
+	 		else {
+	 		var updateToken = yield new Token({id: token.attributes.id})
+		 		.save({token: this.request.body.token, phone:number, email:email}, {patch: true});	
+	 		}
 	 		var verify = yield verifyToken.verify(updateToken.attributes.token);
 		    if(verify){
 		    	this.body={verified:true , message:"Thank you for adding your token!"};
@@ -74,7 +102,7 @@ app.post("/token/new", function* () {
 
 app.post("/send", function* (next) {
 	var newToken = new Token; 
-	var token = yield newToken.findByPhoneNumber(this.request.body.From.slice(2));
+	var token = yield newToken.findByPhoneNumberOrEmail(this.request.body.From.slice(2), this.request.body.email);
 	var cheer = this.request.body.Body.split(" ");
 	var email = cheer[1].toLowerCase().trim();
 	var message = cheer.slice(2).join(" ");

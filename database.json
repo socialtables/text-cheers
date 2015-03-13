@@ -1,6 +1,6 @@
 {
   "development": {
-      "driver": "postgres",
+      "driver": "mysql",
       "user": "root",
       "database": "cheers_local"
   }

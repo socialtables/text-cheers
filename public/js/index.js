@@ -25667,21 +25667,23 @@ var App = React.createClass({displayName: "App",
   addToken: function() {
   	var number = this.refs.phone.getValue();
   	var token = this.refs.token.getValue();
+    var email = this.refs.email.getValue();
     var self = this;
     var xhr = new XMLHttpRequest();
   	var url = "/token/new"
   	xhr.open("POST", url, true);
   	xhr.onload = function () {
-
+      self.setState({
+        dialogMessage:JSON.parse(xhr.response).message
+      });
       self.refs.phone.clearValue();
       self.refs.token.clearValue();
-      self.setState({
-        dialogMessage:JSON.parse(xhr.response).message})
+      self.refs.messageDialog.show();
   	};
-    self.refs.messageDialog.show();
+
   	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
-  	xhr.send("number=" + number + "&token=" + token);
+  	xhr.send("number=" + number + "&token=" + token + "&email=" + email);
   },
 
   onDismiss: function() {
@@ -25708,11 +25710,17 @@ var App = React.createClass({displayName: "App",
             floatingLabelText: "Phone Number", 
             ref: "phone"})
         ), 
+        React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
+          React.createElement(TextField, {
+            floatingLabelText: "ST Email Address", 
+            ref: "email"})
+        ), 
       	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
           React.createElement(TextField, {
             floatingLabelText: "TinyPulse Token", 
             ref: "token"})
       	), 
+
       	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
 
         React.createElement(RaisedButton, {label: "Add Your Token!", secondary: true, onClick: this.addToken})
