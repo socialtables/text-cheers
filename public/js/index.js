@@ -25676,8 +25676,6 @@ var App = React.createClass({displayName: "App",
       self.setState({
         dialogMessage:JSON.parse(xhr.response).message
       });
-      self.refs.phone.clearValue();
-      self.refs.token.clearValue();
       self.refs.messageDialog.show();
   	};
 

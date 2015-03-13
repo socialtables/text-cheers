@@ -57,7 +57,7 @@ app.post("/token/new", function* () {
 			}
 			else{
 			    var newToken = new Token({
-			      number: number,	
+			      phone: number,	
 			      email: email,
 			      token: this.request.body.token
 			    });				
