@@ -25662,86 +25662,81 @@ var TextField = mui.TextField;
 var Dialog = mui.Dialog;
 var App = React.createClass({displayName: "App",
   getInitialState: function() {
-    return {dialogMessage:""};
+	return {dialogMessage:""};
   },
   addToken: function() {
-  	var number = this.refs.phone.getValue();
-  	var token = this.refs.token.getValue();
-    var email = this.refs.email.getValue();
-    var self = this;
-    var xhr = new XMLHttpRequest();
-  	var url = "/token/new"
-  	xhr.open("POST", url, true);
-  	xhr.onload = function () {
-      self.setState({
-        dialogMessage:JSON.parse(xhr.response).message
-      });
-      self.refs.messageDialog.show();
-  	};
+	var number = this.refs.phone.getValue();
+	var token = this.refs.token.getValue();
+	var self = this;
+	var xhr = new XMLHttpRequest();
+	var url = "/token/new"
+	xhr.open("POST", url, true);
+	xhr.onload = function () {
+	  self.setState({
+		dialogMessage:JSON.parse(xhr.response).message
+	  });
+	  self.refs.messageDialog.show();
+	};
 
-  	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
-  	xhr.send("number=" + number + "&token=" + token + "&email=" + email);
+	xhr.send("number=" + number + "&token=" + token);
   },
 
   onDismiss: function() {
-    this.refs.messageDialog.dismiss();
+	this.refs.messageDialog.dismiss();
   },
 
   render: function() {
-    var standardActions = [
-        { text: 'Ok!' , onClick: this.onDismiss }
-    ];
+	var standardActions = [
+		{ text: 'Ok!' , onClick: this.onDismiss }
+	];
 
-    var dialog = React.createElement(Dialog, {ref: "messageDialog", title: "Cheers for Peers!", actions: standardActions}, this.state.dialogMessage, " ")
+	var dialog = React.createElement(Dialog, {ref: "messageDialog", title: "Cheers for Peers!", actions: standardActions}, this.state.dialogMessage, " ")
   
-    var style = {textAlign:"center"};
-    var listStyle={textAlign: "left"};
-    return (
-    	React.createElement("div", {style: style}, 
-        dialog, 
-        React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
-          React.createElement("h1", null, "ST Cheers For Peers")
-        ), 
-      	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
-          React.createElement(TextField, {
-            floatingLabelText: "Phone Number", 
-            ref: "phone"})
-        ), 
-        React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
-          React.createElement(TextField, {
-            floatingLabelText: "ST Email Address", 
-            ref: "email"})
-        ), 
-      	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
-          React.createElement(TextField, {
-            floatingLabelText: "TinyPulse Token", 
-            ref: "token"})
-      	), 
+	var style = {textAlign:"center"};
+	var listStyle={textAlign: "left"};
+	return (
+		React.createElement("div", {style: style}, 
+		dialog, 
+		React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
+		  React.createElement("h1", null, "ST Cheers For Peers")
+		), 
+		React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
+		  React.createElement(TextField, {
+			floatingLabelText: "Phone Number", 
+			ref: "phone"})
+		), 
 
-      	React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
+		React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
+		  React.createElement(TextField, {
+			floatingLabelText: "TinyPulse Token", 
+			ref: "token"})
+		), 
 
-        React.createElement(RaisedButton, {label: "Add Your Token!", secondary: true, onClick: this.addToken})
-      	), 
-        React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
-           React.createElement("h1", null, "How To Use"), 
-          React.createElement("ol", {style: listStyle}, 
-            React.createElement("li", null, " Click on your latest TinyPulse response button in your gmail account ", React.createElement("img", {src: "./respondnow.png"})), 
-            React.createElement("li", null, "When on TinyPulse, look in the url bar and copy your token, found like this: ", React.createElement("img", {src: "./url-screen.png"})), 
-            React.createElement("li", null, "Enter your phone number(no spaces, dashes, etc.. - 2222222222) and paste this token above"), 
-            React.createElement("li", null, "Now you can send a cheers by texting (516)210-4262 in the following manner, Start the text with the word cheers," + ' ' +
-            "followed by the beginning of the persons ST email adress (conor for conor@socialtables, danmac for danmac@socialtables.com etc...)"
-            ), 
-            React.createElement("li", null, "Next simply follow that up with the content of your cheers message"), 
-            React.createElement("li", null, "If you wish to make your cheers anonymous, you can make the final word of the text message \"anon\""), 
-            React.createElement("li", null, "That's it"), 
-            React.createElement("li", null, "But, if you need help you can email me at conor@socialtables.com, or come speak to me in person, I sit in one of the dark rooms in the back.")
-          )
+		React.createElement("div", {className: "col-md-6 col-md-offset-3 centered"}, 
 
-        )
-    	)
+		React.createElement(RaisedButton, {label: "Add Your Token!", secondary: true, onClick: this.addToken})
+		), 
+		React.createElement("div", {className: "col-md-6 col-md-offset-3"}, 
+		   React.createElement("h1", null, "How To Use"), 
+		  React.createElement("ol", {style: listStyle}, 
+			React.createElement("li", null, " Click on your latest TinyPulse response button in your gmail account ", React.createElement("img", {src: "./respondnow.png"})), 
+			React.createElement("li", null, "When on TinyPulse, look in the url bar and copy your token, found like this: ", React.createElement("img", {src: "./url-screen.png"})), 
+			React.createElement("li", null, "Enter your phone number(no spaces, dashes, etc.. - 2222222222) and paste this token above"), 
+			React.createElement("li", null, "Now you can send a cheers by texting (516)210-4262 in the following manner, Start the text with the word cheers," + ' ' +
+			"followed by the beginning of the persons ST email adress (conor for conor@socialtables, danmac for danmac@socialtables.com etc...)"
+			), 
+			React.createElement("li", null, "Next simply follow that up with the content of your cheers message"), 
+			React.createElement("li", null, "If you wish to make your cheers anonymous, you can make the final word of the text message \"anon\""), 
+			React.createElement("li", null, "That's it"), 
+			React.createElement("li", null, "But, if you need help you can email me at conor@socialtables.com, or come speak to me in person, I sit in one of the dark rooms in the back.")
+		  )
 
-    );
+		)
+		)
+
+	);
   }
 });
 
@@ -25753,4 +25748,5 @@ React.render(
 },{"material-ui":2,"react":231}],233:[function(require,module,exports){
 var React = require("react");
 var App = require("../compiled-jsx/app");
+
 },{"../compiled-jsx/app":232,"react":231}]},{},[233])

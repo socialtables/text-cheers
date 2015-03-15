@@ -10,18 +10,22 @@ module.exports = verifyToken = {
 			request(getURI + token, function(err, res, body){
 				if(err) {
 					console.error(err);
-					resolve(false);
-					return false;
+					var verifyReturn = {verified:false};
+					resolve(verifyReturn);
+					return verifyReturn;
 				}
 				else {
 					var cheerioBody = cheerio.load(body);
 					if(cheerioBody.html().indexOf("Whoops") > -1){
-						resolve(false);
-						return false;
+						var verifyReturn = {verified:false};
+						resolve(verifyReturn);
+						return verifyReturn;
 					}
 					else{
-						resolve(true);
-						return(true);
+						var email = cheerioBody('p.active-account strong').text();
+						var verifyReturn = {verified: true, email:email};
+						resolve(verifyReturn);
+						return verifyReturn;
 					}
 				}
 			});

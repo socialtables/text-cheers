@@ -35,66 +35,54 @@ app.get("/", function*() {
 });
 
 app.post("/token/new", function* () {
-	if(this.request.body.token && (this.request.body.number || this.request.body.email)) {
+	if(this.request.body.token) {
 		var existingToken = new Token;
-		var email = this.request.body.email;
 		var number = this.request.body.number;
-		var token = yield existingToken.findByPhoneNumberOrEmail(number, email);
+		var verify = yield verifyToken.verify(this.request.body.token);
+		var token = yield existingToken.findByPhoneNumberOrEmail(number, verify.email);
 
 		if(!token){
-	
-			if(!email) {
-			    var newToken = new Token({
-			      phone: number,
-			      token: this.request.body.token
-			    });
-			}
-			else if(!number) {
-			    var newToken = new Token({
-			      email: email,
-			      token: this.request.body.token
-			    });				
+			if(verify.verified){
+				if(!number) {
+				    var newToken = new Token({
+				      email: verify.email,
+				      token: this.request.body.token
+				    });				
+				}
+				else{
+				    var newToken = new Token({
+				      phone: number,	
+				      email: verify.email,
+				      token: this.request.body.token
+				    });				
+				}
+			    newToken = yield newToken.save();
+			    this.body={verified:true , message:"Thank you for adding your token!", token:newToken.attributes.token};
 			}
 			else{
-			    var newToken = new Token({
-			      phone: number,	
-			      email: email,
-			      token: this.request.body.token
-			    });				
+				this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token", token:this.request.body.token};
 			}
-		    newToken = yield newToken.save();
-		    var verify = yield verifyToken.verify(newToken.attributes.token);
-		    if(verify){
-		    	this.body={verified:true , message:"Thank you for adding your token!"};
-		    }
-		    else{
-		    	this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token"};
-		    }
+			
 		}
 		else{
-			if(!email){
-				var updateToken = yield new Token({id: token.attributes.id})
-		 			.save({token: this.request.body.token, phone:number}, {patch: true});
-	 		}
-	 		else if(!number) {
-	 		var updateToken = yield new Token({id: token.attributes.id})
-		 		.save({token: this.request.body.token, email:email}, {patch: true});	
-	 		}
-	 		else {
-	 		var updateToken = yield new Token({id: token.attributes.id})
-		 		.save({token: this.request.body.token, phone:number, email:email}, {patch: true});	
-	 		}
-	 		var verify = yield verifyToken.verify(updateToken.attributes.token);
-		    if(verify){
-		    	this.body={verified:true , message:"Thank you for adding your token!"};
-		    }
-		    else{
-		    	this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token"};
-		    }
+			if(verify.verified){
+		 		if(!number) {
+		 		var updateToken = yield new Token({id: token.attributes.id})
+			 		.save({token: this.request.body.token, email:verify.email}, {patch: true});	
+		 		}
+		 		else {
+		 		var updateToken = yield new Token({id: token.attributes.id})
+			 		.save({token: this.request.body.token, phone:number, email:verify.email}, {patch: true});	
+		 		}
+					this.body={verified:true , message:"Thank you for adding your token!", token:updateToken.attributes.token};
+			    }
+			else{
+				this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token", token:this.request.body.token};
+			}
 		}
 	}
 	else{
-		this.body={verified:false , message:"You did not enter a token or phone number, please try again"};
+		this.body={verified:false , message:"You did not send a token, please try again"};
 	}
 
 })
