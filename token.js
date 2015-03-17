@@ -1,7 +1,26 @@
 var cheerio = require("cheerio");
 var request = require("request");
 var when = require("when");
+var parseEmailData = require("parseEmailData");
 var getURI = "https://www.tinypulse.com/user_portal/cheers/new?response_token=";
+
+var getEmailData = function(body) {
+	var scripts = body("script");
+	console.log(scripts.length);
+	var script = "";
+	scripts.each(function() {
+		var text = body(this).text();
+
+
+		if(text.indexOf(".cheers-autocomplete") != -1) {
+			script = text;
+		}
+	});
+
+	var emailData = parseEmailData(script);
+
+	return emailData;
+};
 
 module.exports = verifyToken = {
 
@@ -22,8 +41,13 @@ module.exports = verifyToken = {
 						return verifyReturn;
 					}
 					else{
-						var email = cheerioBody('p.active-account strong').text();
-						var verifyReturn = {verified: true, email:email};
+						var emailData = getEmailData(cheerioBody);
+						var verifyReturn = {
+							verified: true,
+							email: emailData.sender,
+							possibleRecipients: emailData.emails,
+							domain: emailData.domain 
+						};
 						resolve(verifyReturn);
 						return verifyReturn;
 					}

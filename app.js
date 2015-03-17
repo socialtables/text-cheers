@@ -57,10 +57,21 @@ app.post("/token/new", function* () {
 				    });				
 				}
 			    newToken = yield newToken.save();
-			    this.body={verified:true , message:"Thank you for adding your token!", token:newToken.attributes.token};
+			    this.body={
+			    	verified:true,
+			    	message:"Thank you for adding your token!",
+			    	token: newToken.attributes.token,
+			    	email: newToken.attributes.email,
+			    	possibleRecipients: verify.possibleRecipients,
+			    	domain: verify.domain
+			    };
 			}
 			else{
-				this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token", token:this.request.body.token};
+				this.body={
+					verified:false,
+					message:"The token you entered was incorrect, please make sure you have entered the correct token",
+					token: this.request.body.token
+				};
 			}
 			
 		}
@@ -74,15 +85,29 @@ app.post("/token/new", function* () {
 		 		var updateToken = yield new Token({id: token.attributes.id})
 			 		.save({token: this.request.body.token, phone:number, email:verify.email}, {patch: true});	
 		 		}
-					this.body={verified:true , message:"Thank you for adding your token!", token:updateToken.attributes.token};
+					this.body={
+						verified:true,
+						message:"Thank you for adding your token!",
+						token: updateToken.attributes.token,
+						email: updateToken.attributes.email,
+						possibleRecipients: verify.possibleRecipients,
+			    		domain: verify.domain
+					};
 			    }
 			else{
-				this.body={verified:false , message:"The token you entered was incorrect, please make sure you have entered the correct token", token:this.request.body.token};
+				this.body={
+					verified:false,
+					message:"The token you entered was incorrect, please make sure you have entered the correct token",
+					token:this.request.body.token
+				};
 			}
 		}
 	}
 	else{
-		this.body={verified:false , message:"You did not send a token, please try again"};
+		this.body={
+			verified:false,
+			message:"You did not send a token, please try again"
+		};
 	}
 
 })
