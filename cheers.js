@@ -5,7 +5,6 @@ var getURI = "https://www.tinypulse.com/user_portal/cheers/new?response_token=";
 var postURI = "https://www.tinypulse.com/user_portal/cheers?response_token=";
 var when = require("when");
 
-
 var autoCompleteEmail = function(email, emailData) {
 	var completedEmail;
 	if(emailData.emails.indexOf(email) !== -1) {

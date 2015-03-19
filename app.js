@@ -8,7 +8,8 @@ var twilio = require("twilio");
 var cheers = require("./cheers");
 var Token = require("./models/token");
 var verifyToken = require("./token");
-
+var tpCheers = require("tinypulse").Cheers;
+var tpToken = require("tinypulse").Token;
 app.bookshelf = require("./models/index");
 app.use(bodyParser());
 
@@ -31,6 +32,7 @@ render(app, {
 app.use(router(app));
 
 app.get("/", function*() {
+	
 	yield this.render("index");
 });
 

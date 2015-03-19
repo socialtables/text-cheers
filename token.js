@@ -1,7 +1,7 @@
 var cheerio = require("cheerio");
 var request = require("request");
 var when = require("when");
-var parseEmailData = require("parseEmailData");
+var parseEmailData = require("./parseEmailData");
 var getURI = "https://www.tinypulse.com/user_portal/cheers/new?response_token=";
 
 var getEmailData = function(body) {
