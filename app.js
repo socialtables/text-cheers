@@ -5,6 +5,7 @@ var bodyParser = require('koa-bodyparser');
 var render = require('koa-ejs');
 var router = require("koa-router");
 var twilio = require("twilio");
+var thunkify = require("thunkify-wrap");
 var cheers = require("./cheers");
 var Token = require("./models/token");
 var verifyToken = require("./token");
@@ -140,9 +141,23 @@ app.post("/send", function* (next) {
 	else {
 		this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on www.cheers.rocks</Sms></Response>"; 
 	}
-	
+});
 
-})
+app.get("/cheers/received", function* (next){
+	var token = this.query.token;
+	var getCheers = thunkify(tpCheers.getCheersPage);
+	var page = this.query.page || 1;
+	var cheers = yield getCheers({page: page, type: "received", token: token, numResults: 10});
+	this.body = JSON.stringify(cheers);
+});
+
+app.get("/cheers/sent", function* (next){
+	var token = this.query.token;
+	var getCheers = thunkify(tpCheers.getCheersPage);
+	var page = this.query.page || 1;
+	var cheers = yield getCheers({page: page, type: "sent", token: token, numResults: 10});
+	this.body = JSON.stringify(cheers);
+});
 
 process.env.PORT || (process.env.PORT = 1987);
 app.listen(process.env.PORT);
