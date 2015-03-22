@@ -119,15 +119,19 @@ app.post("/token/new", function* () {
 app.post("/send", function* (next) {
 	var newToken = new Token; 
 	var token = yield newToken.findByPhoneNumberOrEmail(this.request.body.From.slice(2), this.request.body.email);
+	console.log(this.request.body);
+	console.log("#######################################")
+	console.log(this.request.body.Body.split(" "));
+	console.log("#######################################")
 	var cheer = this.request.body.Body.split(" ");
 	var purpose = cheer[0];
 	if(purpose.toLowerCase() === "which"){
 		var possibleEmails = yield verifyToken.possibleEmails(token.attributes.token, cheer[1].toLowerCase().trim());
 		
 		if(possibleEmails.possibleRecipients.length){
-			var response = "Did you possible mean one of these? " + possibleEmails.possibleRecipients.join(",")
+			var response = "Did you possibly mean one of these? " + possibleEmails.possibleRecipients.join(",")
 			if(possibleEmails.possibleRecipients.length === 1){
-				response = "Did you mean " + possibleEmails.possibleRecipients.join("");
+				response = "Did you mean " + possibleEmails.possibleRecipients.join("") + "?";
 
 			}
 		}
