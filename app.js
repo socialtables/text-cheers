@@ -5,7 +5,7 @@ var bodyParser = require('koa-bodyparser');
 var render = require('koa-ejs');
 var router = require("koa-router");
 var twilio = require("twilio");
-var thunkify = require("thunkify-wrap");
+var thunkify = require("thunkify");
 var cheers = require("./cheers");
 var Token = require("./models/token");
 var verifyToken = require("./token");
@@ -120,26 +120,44 @@ app.post("/send", function* (next) {
 	var newToken = new Token; 
 	var token = yield newToken.findByPhoneNumberOrEmail(this.request.body.From.slice(2), this.request.body.email);
 	var cheer = this.request.body.Body.split(" ");
-	var email = cheer[1].toLowerCase().trim();
-	var message = cheer.slice(2).join(" ");
-	var isAnonymous = cheer[cheer.length - 1] === "anon" ? 1 : 0;
-	if(isAnonymous){
-		message = message.split(" ");
-		message[message.length - 1] = "";
-		message = message.join(" ");
+	var purpose = cheer[0];
+	if(purpose.toLowerCase() === "which"){
+		var possibleEmails = yield verifyToken.possibleEmails(token.attributes.token, cheer[1].toLowerCase().trim());
+		
+		if(possibleEmails.possibleRecipients.length){
+			var response = "Did you possible mean one of these? " + possibleEmails.possibleRecipients.join(",")
+			if(possibleEmails.possibleRecipients.length === 1){
+				response = "Did you mean " + possibleEmails.possibleRecipients.join("");
+
+			}
+		}
+		else{
+			response = "We were unable to locate anyone who met that criteria"
+		}
+		this.body = "<Response><Sms>"+response+"</Sms></Response>"; 
 	}
-	var cheer = yield cheers.sendCheers({
-		token: token.attributes.token,
-		email: email,
-		message: message,
-		isAnonymous: isAnonymous
-	});
-	this.set('Content-Type', 'text/xml');
-	if(cheer) {
-		this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
-	}
-	else {
-		this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on www.cheers.rocks</Sms></Response>"; 
+	else{
+		var email = cheer[1].toLowerCase().trim();
+		var message = cheer.slice(2).join(" ");
+		var isAnonymous = cheer[cheer.length - 1] === "anon" ? 1 : 0;
+		if(isAnonymous){
+			message = message.split(" ");
+			message[message.length - 1] = "";
+			message = message.join(" ");
+		}
+		var cheer = yield cheers.sendCheers({
+			token: token.attributes.token,
+			email: email,
+			message: message,
+			isAnonymous: isAnonymous
+		});
+		this.set('Content-Type', 'text/xml');
+		if(cheer) {
+			this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
+		}
+		else {
+			this.body = "<Response><Sms>Hmmm, there was a problem sending your cheers, make sure you have the correct token on www.cheers.rocks</Sms></Response>"; 
+		}
 	}
 });
 
@@ -158,6 +176,8 @@ app.get("/cheers/sent", function* (next){
 	var cheers = yield getCheers({page: page, type: "sent", token: token, numResults: 10});
 	this.body = JSON.stringify(cheers);
 });
+
+
 
 process.env.PORT || (process.env.PORT = 1987);
 app.listen(process.env.PORT);
