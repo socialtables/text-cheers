@@ -125,9 +125,9 @@ app.post("/send", function* (next) {
 		var possibleEmails = yield verifyToken.possibleEmails(token.attributes.token, cheer[1].toLowerCase().trim());
 		
 		if(possibleEmails.possibleRecipients.length){
-			var response = "Did you possible mean one of these? " + possibleEmails.possibleRecipients.join(",")
+			var response = "Did you possibly mean one of these? " + possibleEmails.possibleRecipients.join(",")
 			if(possibleEmails.possibleRecipients.length === 1){
-				response = "Did you mean " + possibleEmails.possibleRecipients.join("");
+				response = "Did you mean " + possibleEmails.possibleRecipients.join("") + "?";
 
 			}
 		}
