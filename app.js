@@ -180,7 +180,6 @@ app.get("/cheers/sent", function* (next){
 
 
 app.post("/cheer/:token", function*(next){
-	console.log(this.request);
 	var self = this;
 	var email = this.request.body.email;
 	var message = this.request.body.message;
@@ -198,6 +197,23 @@ app.post("/cheer/:token", function*(next){
 		this.body = {sent:false}
 	}
 });
+
+app.post("/slack", function*(next) {
+	console.log(this.request.body.user_name);
+	var from = this.request.body.user_name + "@socialtables.com";
+	console.log(from);
+	console.log(this.request.body.text);
+	var number = "";
+	var existingToken = new Token;
+	var token = yield existingToken.findByPhoneNumberOrEmail(number, from);
+	// var send = yield cheers.sendCheers({
+	// 	token: token.attributes.token,
+	// 	email: email,
+	// 	message: message,
+	// 	isAnonymous: isAnonymous
+	// });
+	this.body = "cheers sent";
+})
 
 
 process.env.PORT || (process.env.PORT = 1987);

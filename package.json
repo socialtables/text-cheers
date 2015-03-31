@@ -49,7 +49,7 @@
     "reactify": "^1.0.0",
     "request": "^2.53.0",
     "thunkify": "^2.1.2",
-    "tinypulse": "^1.1.0",
+    "tinypulse": "^1.3.0",
     "twilio": "^1.11.1",
     "when": "^3.7.2"
   },
