@@ -37,7 +37,6 @@ var getFormFields = function(body) {
 
 var getEmailData = function(body) {
 	var scripts = body("script");
-	console.log(scripts.length);
 	var script = "";
 	scripts.each(function() {
 		var text = body(this).text();

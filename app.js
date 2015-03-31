@@ -11,6 +11,7 @@ var Token = require("./models/token");
 var verifyToken = require("./token");
 var tpCheers = require("tinypulse").Cheers;
 var tpToken = require("tinypulse").Token;
+var request = require("koa-request");
 app.bookshelf = require("./models/index");
 app.use(bodyParser());
 
@@ -119,10 +120,6 @@ app.post("/token/new", function* () {
 app.post("/send", function* (next) {
 	var newToken = new Token; 
 	var token = yield newToken.findByPhoneNumberOrEmail(this.request.body.From.slice(2), this.request.body.email);
-	console.log(this.request.body);
-	console.log("#######################################")
-	console.log(this.request.body.Body.split(" "));
-	console.log("#######################################")
 	var cheer = this.request.body.Body.split(" ");
 	var purpose = cheer[0];
 	if(purpose.toLowerCase() === "which"){
@@ -140,7 +137,7 @@ app.post("/send", function* (next) {
 		}
 		this.body = "<Response><Sms>"+response+"</Sms></Response>"; 
 	}
-	else{
+	else if(purpose.toLowerCase() === "cheers"){
 		var email = cheer[1].toLowerCase().trim();
 		var message = cheer.slice(2).join(" ");
 		var isAnonymous = cheer[cheer.length - 1] === "anon" ? 1 : 0;
@@ -149,14 +146,14 @@ app.post("/send", function* (next) {
 			message[message.length - 1] = "";
 			message = message.join(" ");
 		}
-		var cheer = yield cheers.sendCheers({
+		var send = yield cheers.sendCheers({
 			token: token.attributes.token,
 			email: email,
 			message: message,
 			isAnonymous: isAnonymous
 		});
 		this.set('Content-Type', 'text/xml');
-		if(cheer) {
+		if(send) {
 			this.body = "<Response><Sms>Cheers Sent!</Sms></Response>"; 
 		}
 		else {
@@ -181,6 +178,26 @@ app.get("/cheers/sent", function* (next){
 	this.body = JSON.stringify(cheers);
 });
 
+
+app.post("/cheer/:token", function*(next){
+	console.log(this.request);
+	var self = this;
+	var email = this.request.body.email;
+	var message = this.request.body.message;
+	var isAnonymous = this.request.body.anon || false;
+	var send = yield cheers.sendCheers({
+		token: self.params.token,
+		email: email,
+		message: message,
+		isAnonymous: isAnonymous
+	});
+	if(send) {
+		this.body = {sent:true}
+	}
+	else{
+		this.body = {sent:false}
+	}
+});
 
 
 process.env.PORT || (process.env.PORT = 1987);
