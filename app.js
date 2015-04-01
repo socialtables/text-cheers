@@ -199,20 +199,29 @@ app.post("/cheer/:token", function*(next){
 });
 
 app.post("/slack", function*(next) {
-	console.log(this.request.body.user_name);
 	var from = this.request.body.user_name + "@socialtables.com";
-	console.log(from);
-	console.log(this.request.body.text);
+	var to = this.request.body.text.split(" ")[0].replace("@", "");
+	var message = this.request.body.text.split(" ").slice(1).join(" ");
 	var number = "";
 	var existingToken = new Token;
 	var token = yield existingToken.findByPhoneNumberOrEmail(number, from);
-	// var send = yield cheers.sendCheers({
-	// 	token: token.attributes.token,
-	// 	email: email,
-	// 	message: message,
-	// 	isAnonymous: isAnonymous
-	// });
-	this.body = "cheers sent";
+	var isAnonymous = false;
+	if(!token) {
+		this.body = "We did not have a token on file for you, please download the chrome extension and visit your latest tinypulse email to add your token";
+	}
+	var send = yield cheers.sendCheers({
+		token: token.attributes.token,
+		email: to,
+		message: message,
+		isAnonymous: isAnonymous
+	});
+	if(send){
+		this.body = "cheers sent to " + to;	
+	}
+	else {
+		this.body = "We were unable to send your cheers";
+	}
+
 })
 
 
