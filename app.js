@@ -39,6 +39,7 @@ app.get("/", function*() {
 });
 
 app.post("/token/new", function* () {
+	//test
 	if(this.request.body.token) {
 		var existingToken = new Token;
 		var number = this.request.body.number;
@@ -227,17 +228,19 @@ app.post("/slack", function*(next) {
 	if(!token) {
 		this.body = "We did not have a token on file for you, please download the chrome extension and visit your latest tinypulse email to add your token";
 	}
-	var send = yield cheers.sendCheers({
-		token: token.attributes.token,
-		email: to,
-		message: message,
-		isAnonymous: isAnonymous
-	});
-	if(send){
-		this.body = "cheers sent to " + to;	
-	}
-	else {
-		this.body = "We were unable to send your cheers";
+	else{
+		var send = yield cheers.sendCheers({
+			token: token.attributes.token,
+			email: to,
+			message: message,
+			isAnonymous: isAnonymous
+		});
+		if(send){
+			this.body = "cheers sent to " + to;	
+		}
+		else {
+			this.body = "We were unable to send your cheers";
+		}
 	}
 
 })
