@@ -199,8 +199,26 @@ app.post("/cheer/:token", function*(next){
 });
 
 app.post("/slack", function*(next) {
-	var from = this.request.body.user_name + "@socialtables.com";
-	var to = this.request.body.text.split(" ")[0].replace("@", "");
+	var nameReplace = {
+			"jessecolligan":"jessec", 
+			"john": "johne", 
+			"mcmanus": "mattm", 
+			"ramparimi": "ram", 
+			"scicotello": "sam", 
+			"scott":"scotts", 
+			"tdmoyer":"tim", 
+			"willh":"will"};
+
+	var userNames = Object.keys(nameReplace);
+	var user = this.request.body.user_name;
+	if(userNames.indexOf(this.request.body.user_name) > -1){
+		user = nameReplace[user];
+	}
+	var from = user + "@socialtables.com";
+	var to = this.request.body.text.split(" ")[0].replace("@", "").trim();
+	if(userNames.indexOf(to) > -1){
+		to = nameReplace[to];
+	}
 	var message = this.request.body.text.split(" ").slice(1).join(" ");
 	var number = "";
 	var existingToken = new Token;
