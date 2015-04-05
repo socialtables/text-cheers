@@ -6,10 +6,9 @@ var render = require('koa-ejs');
 var router = require("koa-router");
 var twilio = require("twilio");
 var thunkify = require("thunkify");
-var cheers = require("./cheers");
 var Token = require("./models/token");
 var verifyToken = require("./token");
-var tpCheers = require("tinypulse").Cheers;
+var cheers = require("tinypulse").Cheers;
 var tpToken = require("tinypulse").Token;
 var request = require("koa-request");
 app.bookshelf = require("./models/index");
@@ -147,7 +146,8 @@ app.post("/send", function* (next) {
 			message[message.length - 1] = "";
 			message = message.join(" ");
 		}
-		var send = yield cheers.sendCheers({
+		var sendCheers = thunkify(cheers.sendCheers);
+		var send = yield sendCheers({
 			token: token.attributes.token,
 			email: email,
 			message: message,
@@ -164,8 +164,9 @@ app.post("/send", function* (next) {
 });
 
 app.get("/cheers/received", function* (next){
+	console.log(cheers);
 	var token = this.query.token;
-	var getCheers = thunkify(tpCheers.getCheersPage);
+	var getCheers = thunkify(cheers.getCheersPage);
 	var page = this.query.page || 1;
 	var cheers = yield getCheers({page: page, type: "received", token: token, numResults: 10});
 	this.body = JSON.stringify(cheers);
@@ -173,7 +174,7 @@ app.get("/cheers/received", function* (next){
 
 app.get("/cheers/sent", function* (next){
 	var token = this.query.token;
-	var getCheers = thunkify(tpCheers.getCheersPage);
+	var getCheers = thunkify(cheers.getCheersPage);
 	var page = this.query.page || 1;
 	var cheers = yield getCheers({page: page, type: "sent", token: token, numResults: 10});
 	this.body = JSON.stringify(cheers);
@@ -185,7 +186,8 @@ app.post("/cheer/:token", function*(next){
 	var email = this.request.body.email;
 	var message = this.request.body.message;
 	var isAnonymous = this.request.body.anon || false;
-	var send = yield cheers.sendCheers({
+	var sendCheers = thunkify(cheers.sendCheers);
+	var send = yield sendCheers({
 		token: self.params.token,
 		email: email,
 		message: message,
@@ -229,7 +231,8 @@ app.post("/slack", function*(next) {
 		this.body = "We did not have a token on file for you, please download the chrome extension and visit your latest tinypulse email to add your token";
 	}
 	else{
-		var send = yield cheers.sendCheers({
+		var sendCheers = thunkify(cheers.sendCheers);
+		var send = yield sendCheers({
 			token: token.attributes.token,
 			email: to,
 			message: message,
