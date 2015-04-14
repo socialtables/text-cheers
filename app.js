@@ -164,20 +164,19 @@ app.post("/send", function* (next) {
 });
 
 app.get("/cheers/received", function* (next){
-	console.log(cheers);
 	var token = this.query.token;
 	var getCheers = thunkify(cheers.getCheersPage);
 	var page = this.query.page || 1;
-	var cheers = yield getCheers({page: page, type: "received", token: token, numResults: 10});
-	this.body = JSON.stringify(cheers);
+	var received = yield getCheers({page: page, type: "received", token: token, numResults: 10});
+	this.body = JSON.stringify(received);
 });
 
 app.get("/cheers/sent", function* (next){
 	var token = this.query.token;
 	var getCheers = thunkify(cheers.getCheersPage);
 	var page = this.query.page || 1;
-	var cheers = yield getCheers({page: page, type: "sent", token: token, numResults: 10});
-	this.body = JSON.stringify(cheers);
+	var sent = yield getCheers({page: page, type: "sent", token: token, numResults: 10});
+	this.body = JSON.stringify(sent);
 });
 
 
